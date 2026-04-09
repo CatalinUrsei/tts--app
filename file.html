@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TTS Free</title>
+</head>
+<body style="font-family: Arial; max-width: 600px; margin: auto;">
+
+<h2>Text to Speech (Free)</h2>
+
+<textarea id="text" rows="5" style="width:100%;" placeholder="Scrie textul aici..."></textarea>
+
+<br><br>
+
+<select id="voices"></select>
+
+<br><br>
+
+<button onclick="speak()">▶️ Speak</button>
+<button onclick="stop()">⏹ Stop</button>
+
+<script>
+let voices = [];
+
+function loadVoices() {
+  voices = speechSynthesis.getVoices();
+  const select = document.getElementById("voices");
+
+  select.innerHTML = "";
+  voices.forEach((voice, i) => {
+    const option = document.createElement("option");
+    option.value = i;
+    option.textContent = voice.name + " (" + voice.lang + ")";
+    select.appendChild(option);
+  });
+}
+
+speechSynthesis.onvoiceschanged = loadVoices;
+
+function speak() {
+  const text = document.getElementById("text").value;
+  const selectedVoice = voices[document.getElementById("voices").value];
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.voice = selectedVoice;
+
+  speechSynthesis.speak(utterance);
+}
+
+function stop() {
+  speechSynthesis.cancel();
+}
+</script>
+
+</body>
+</html>
