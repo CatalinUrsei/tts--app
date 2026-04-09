@@ -1,54 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="ro">
 <head>
+  <meta charset="UTF-8">
   <title>Text to speech</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 0 10px;
+    }
+    textarea, select, button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 14px;
+    }
+    button {
+      cursor: pointer;
+    }
+  </style>
 </head>
-<body style="font-family: Arial; max-width: 600px; margin: auto;">
+
+<body>
 
 <h2>Transformare text in audio</h2>
 
-<textarea id="text" rows="5" style="width:100%;" placeholder="Scrie textul aici..."></textarea>
-
-<br><br>
+<textarea id="text" rows="5" placeholder="Scrie textul aici..."></textarea>
 
 <select id="voices"></select>
 
-<br><br>
-
-<button onclick="speak()">▶️ Speak</button>
-<button onclick="stop()">⏹ Stop</button>
+<button id="speakBtn">▶️ Redă</button>
+<button id="stopBtn">⏹ Oprește</button>
 
 <script>
+const textEl = document.getElementById("text");
+const voiceSelect = document.getElementById("voices");
+
 let voices = [];
 
+// Încarcă vocile
 function loadVoices() {
   voices = speechSynthesis.getVoices();
-  const select = document.getElementById("voices");
 
-  select.innerHTML = "";
-  voices.forEach((voice, i) => {
-    const option = document.createElement("option");
-    option.value = i;
-    option.textContent = voice.name + " (" + voice.lang + ")";
-    select.appendChild(option);
-  });
+  if (!voices.length) return;
+
+  voiceSelect.innerHTML = voices
+    .map((v, i) => `<option value="${i}">${v.name} (${v.lang})</option>`)
+    .join("");
 }
 
+// Eveniment când vocile devin disponibile
 speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
 
-function speak() {
-  const text = document.getElementById("text").value;
-  const selectedVoice = voices[document.getElementById("voices").value];
+// Speak
+document.getElementById("speakBtn").onclick = () => {
+  const text = textEl.value.trim();
+  if (!text) return alert("Introdu text!");
 
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.voice = selectedVoice;
+  const selectedVoice = voices[voiceSelect.value];
 
+  if (selectedVoice) utterance.voice = selectedVoice;
+
+  speechSynthesis.cancel(); // oprește orice rulare anterioară
   speechSynthesis.speak(utterance);
-}
+};
 
-function stop() {
+// Stop
+document.getElementById("stopBtn").onclick = () => {
   speechSynthesis.cancel();
-}
+};
 </script>
 
 </body>
